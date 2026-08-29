@@ -1,0 +1,1422 @@
+/* ------------------------------------------------------------------ */
+/* Tokens                                                              */
+/* ------------------------------------------------------------------ */
+:root {
+  --bg: #ffffff;
+  --bg-alt: #f4f5f7;
+  --ink: #131316;
+  --muted: #75777e;
+  --line: rgba(19, 19, 22, 0.08);
+  --line-strong: rgba(19, 19, 22, 0.18);
+
+  --metal-1: #f6f7f9;
+  --metal-2: #d6d8dc;
+  --metal-3: #a6a9b0;
+  --metal-4: #6e7075;
+  --metal-gradient: linear-gradient(
+    135deg,
+    var(--metal-1) 0%,
+    var(--metal-2) 24%,
+    var(--metal-1) 40%,
+    var(--metal-3) 62%,
+    var(--metal-2) 80%,
+    var(--metal-1) 100%
+  );
+
+  --font-display: "Google Sans Flex", "Arial", sans-serif;
+  --font-body: "Google Sans Flex", system-ui, sans-serif;
+
+  --edge: clamp(20px, 5vw, 64px);
+  --max: 1440px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+  color-scheme: light;
+}
+html.scroll-locked,
+html.scroll-locked body {
+  overflow: hidden;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  /* clip, not hidden: `overflow-x: hidden` silently forces `overflow-y: auto`,
+     which makes <body> its own scroll container and breaks ScrollTrigger's
+     pin distance math for the Work section. `clip` leaves overflow-y visible. */
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 200;
+  background: var(--ink);
+  color: var(--bg);
+  padding: 12px 18px;
+  font-size: 13px;
+  text-decoration: none;
+}
+.skip-link:focus {
+  left: var(--edge);
+  top: var(--edge);
+}
+
+a {
+  color: inherit;
+}
+
+h1, h2, h3, p {
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Background canvas — scoped to the hero only, not the whole page     */
+/* ------------------------------------------------------------------ */
+#bg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  display: block;
+  filter: blur(7px) contrast(24) drop-shadow(0 18px 34px rgba(0, 0, 0, 0.4));
+}
+
+/* Faint background grid — reads as quiet structure, not the old blueprint
+   look. Nudges a few px with the cursor via --grid-x/--grid-y (set in JS). */
+#hero-grid {
+  position: absolute;
+  inset: -30px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: linear-gradient(var(--ink) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ink) 1px, transparent 1px);
+  background-size: 56px 56px;
+  transform: translate(var(--grid-x, 0px), var(--grid-y, 0px));
+}
+
+/* Small UI/UX-referencing marks drifting slowly in the hero's empty space —
+   an alignment guide, a cursor, a toggle, a type glyph. Ambient, not a focal
+   point: kept faint, slow, and out of the headline's way. */
+.hero-doodles {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  color: var(--metal-4);
+}
+.doodle {
+  position: absolute;
+  opacity: 0.16;
+}
+.doodle--guide {
+  top: 16%;
+  right: 12%;
+  width: 44px;
+  height: 44px;
+  animation: doodle-drift-a 13s ease-in-out infinite;
+}
+.doodle--cursor {
+  top: 42%;
+  right: 22%;
+  width: 20px;
+  height: 22px;
+  animation: doodle-drift-b 11s ease-in-out infinite 1.2s;
+}
+.doodle--toggle {
+  top: 66%;
+  right: 9%;
+  width: 34px;
+  height: 17px;
+  animation: doodle-drift-a 15s ease-in-out infinite 0.6s;
+}
+.doodle--glyph {
+  top: 28%;
+  right: 30%;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 26px;
+  letter-spacing: -0.01em;
+  animation: doodle-drift-b 14s ease-in-out infinite 2s;
+}
+@keyframes doodle-drift-a {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(-8px, 10px) rotate(-3deg); }
+}
+@keyframes doodle-drift-b {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(7px, -9px); }
+}
+@media (max-width: 860px) {
+  .hero-doodles {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .doodle {
+    animation: none;
+  }
+}
+
+/* Specular sheen for the liquid — screen-blended so it only brightens the
+   black liquid and stays invisible over the white page (screen of white
+   over white is still white), giving a glossy ferrofluid-style highlight
+   without needing to mask it to the liquid's exact silhouette. */
+#liquid-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(
+      120px 90px at var(--shine-x, 32%) var(--shine-y, 22%),
+      rgba(255, 255, 255, 0.65),
+      rgba(255, 255, 255, 0.16) 45%,
+      transparent 70%
+    ),
+    radial-gradient(
+      60% 45% at 50% 65%,
+      rgba(255, 255, 255, 0.1),
+      transparent 70%
+    );
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+.hero.is-settled #liquid-shine {
+  opacity: 0;
+}
+
+footer.footer {
+  position: relative;
+  z-index: 2;
+}
+
+/* ------------------------------------------------------------------ */
+/* Custom cursor                                                       */
+/* ------------------------------------------------------------------ */
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--ink);
+  pointer-events: none;
+  z-index: 300;
+  transform: translate(-100px, -100px);
+  transition: transform 0.05s linear, width 0.2s ease, height 0.2s ease, background 0.2s ease;
+  will-change: transform;
+}
+.cursor-dot.is-active {
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  background: transparent;
+  border: 1px solid var(--metal-3);
+}
+
+/* Over the dark project section the ink-black dot vanishes — flip it white. */
+html.in-project .cursor-dot {
+  background: #f4f5f7;
+}
+html.in-project .cursor-dot.is-active {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+@media (max-width: 780px), (hover: none) {
+  .cursor-dot {
+    display: none;
+  }
+}
+
+/* The custom dot replaces the native cursor — without this the OS arrow was
+   still showing through on top of it, including as a stray light mark over
+   the dark hero. */
+html.custom-cursor,
+html.custom-cursor * {
+  cursor: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Nav                                                                  */
+/* ------------------------------------------------------------------ */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px var(--edge);
+  border-bottom: 1px solid transparent;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.92), transparent);
+  opacity: 1;
+  transform: translateY(0);
+  transition: border-color 0.3s ease, background 0.3s ease, opacity 0.5s ease,
+    transform 0.4s cubic-bezier(0.4, 0, 0.1, 1), color 0.3s ease;
+}
+.nav.is-scrolled {
+  border-bottom-color: var(--line);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(10px);
+}
+/* Hide while scrolling down, show while scrolling up (toggled from main.ts). */
+.nav.is-hidden {
+  transform: translateY(-100%);
+}
+
+/* Dark header while a (dark) project panel fills the viewport. */
+html.in-project .nav {
+  background: linear-gradient(to bottom, rgba(8, 8, 10, 0.9), transparent);
+}
+html.in-project .nav.is-scrolled {
+  background: rgba(8, 8, 10, 0.82);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+html.in-project .nav__logo {
+  color: #f4f5f7;
+}
+html.in-project .nav__links a {
+  color: rgba(244, 245, 247, 0.6);
+}
+html.in-project .nav__links a:hover,
+html.in-project .nav__links a:focus-visible {
+  color: #f4f5f7;
+}
+
+/* The whole UI, header included, sits under the liquid — nothing shows
+   through the curtain until the button is clicked and the drain reveals it,
+   same moment the headline/sub-text fade in. Avoids trying to color-match
+   the nav to the liquid (which left a seam where the two met). */
+html.scroll-locked .nav {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nav__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  color: var(--ink);
+  transition: color 0.3s ease;
+}
+.nav__logo-mark {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--metal-gradient);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+.nav__links {
+  display: flex;
+  gap: 36px;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+}
+.nav__links a {
+  text-decoration: none;
+  color: var(--muted);
+  position: relative;
+  padding-bottom: 3px;
+  transition: color 0.2s ease;
+}
+.nav__links a:hover,
+.nav__links a:focus-visible {
+  color: var(--ink);
+}
+.nav__links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 0;
+  background: var(--metal-4);
+  transition: width 0.25s ease;
+}
+.nav__links a:hover::after,
+.nav__links a:focus-visible::after {
+  width: 100%;
+}
+
+.nav__cta {
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--metal-gradient);
+  background-size: 220% 100%;
+  background-position: 0% 0%;
+  border: 1px solid var(--line-strong);
+  padding: 9px 18px;
+  border-radius: 999px;
+  transition: background-position 0.5s ease, box-shadow 0.25s ease;
+}
+.nav__cta:hover,
+.nav__cta:focus-visible {
+  background-position: 100% 0%;
+  box-shadow: 0 6px 18px rgba(19, 19, 22, 0.12);
+}
+
+@media (max-width: 640px) {
+  .nav__links {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Shared: section headings                                            */
+/* ------------------------------------------------------------------ */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 var(--edge);
+  margin-bottom: 44px;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(28px, 4vw, 44px);
+  letter-spacing: -0.01em;
+}
+
+.section-note {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.01em;
+}
+
+section {
+  padding-top: clamp(90px, 14vh, 160px);
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero                                                                 */
+/* ------------------------------------------------------------------ */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 120px;
+  padding-bottom: clamp(90px, 15vh, 150px);
+}
+
+.hero__content {
+  position: relative;
+  z-index: 2;
+  padding: 0 var(--edge);
+  max-width: 1100px;
+  container-type: inline-size;
+}
+
+.eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  margin-bottom: 22px;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.hero__headline {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(32px, 8cqw, 96px);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  margin-bottom: 32px;
+}
+
+.hl-stack {
+  display: inline-grid;
+  justify-items: start;
+}
+.hl-stack .hl {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+.hl--white {
+  color: #ffffff;
+  transition: opacity 0.6s ease;
+}
+.hl--dark {
+  position: relative;
+  color: var(--ink);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.hero.is-text-revealed .hl--white {
+  opacity: 0;
+}
+.hero.is-text-revealed .hl--dark {
+  opacity: 1;
+}
+
+/* The button and "design decision." share one slot, left-aligned like the
+   rest of the headline: the button occupies it through the black state, then
+   crossfades into the text the moment the reveal starts — same beat as the
+   "Clarity is a" crossfade, not waiting on the (much slower) liquid physics
+   in the background to actually finish draining. */
+.hl-line2 {
+  display: inline-grid;
+  justify-items: start;
+}
+.hl-line2 > * {
+  grid-area: 1 / 1;
+}
+
+.hl-line2-text {
+  position: relative;
+  color: var(--ink);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+.hero.is-text-revealed .hl-line2-text {
+  opacity: 1;
+}
+
+.underline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.21em;
+  height: 0.05em;
+  min-height: 3px;
+  background: var(--ink);
+  transform: scaleX(var(--underline-reveal, 0));
+  transform-origin: left;
+  transition: transform 0.6s ease-out;
+}
+.liquid-cta {
+  width: clamp(44px, 10cqw, 120px);
+  height: clamp(44px, 10cqw, 120px);
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid #ffffff;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: clamp(12px, 1.1vw, 14px);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease,
+    transform 0.35s ease, opacity 0.35s ease;
+}
+.liquid-cta:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.liquid-cta.is-retiring {
+  transform: scale(1.3);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hero__sub {
+  font-size: clamp(16px, 1.6vw, 20px);
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 46ch;
+  margin-bottom: 44px;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s;
+}
+
+.hero__cta {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(28px, 6vh, 56px);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line-strong);
+  padding-bottom: 6px;
+  opacity: 0;
+  transform: translateX(-50%) translateY(14px);
+  transition: opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s, border-color 0.25s ease,
+    gap 0.25s ease;
+}
+.hero.is-revealed .eyebrow,
+.hero.is-revealed .hero__sub {
+  opacity: 1;
+  transform: none;
+}
+.hero.is-revealed .hero__cta {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.hero__cta:hover,
+.hero__cta:focus-visible {
+  border-color: var(--metal-4);
+  gap: 18px;
+}
+.hero__cta-arrow {
+  color: var(--metal-4);
+  animation: bob 2.2s ease-in-out infinite;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Work: full-screen scroll-pinned project story                       */
+/* ------------------------------------------------------------------ */
+.work {
+  position: relative;
+}
+
+.work-stage {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  background: #0a0a0a;
+  color: #f4f5f7;
+}
+
+.work-panels {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.work-panel {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #0a0a0a;
+  will-change: transform;
+}
+.work-panel__scroll {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  will-change: transform;
+}
+
+/* ---- Case-study content (dark) ---- */
+.cs {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 var(--edge);
+}
+.cs__cover {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  padding-top: 96px;
+  padding-bottom: 72px;
+}
+.cs__eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(244, 245, 247, 0.5);
+}
+.cs__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(40px, 8vw, 104px);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+}
+.cs__lede {
+  font-size: clamp(17px, 1.8vw, 22px);
+  line-height: 1.55;
+  color: rgba(244, 245, 247, 0.72);
+  max-width: 52ch;
+}
+.cs__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+.cs__chip {
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  color: rgba(244, 245, 247, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+.cs__scrollhint {
+  margin-top: 30px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(244, 245, 247, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cs__scrollhint::after {
+  content: "";
+  width: 1px;
+  height: 44px;
+  background: linear-gradient(rgba(255, 255, 255, 0.5), transparent);
+}
+.cs__section {
+  padding: clamp(44px, 8vh, 92px) 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: clamp(20px, 5vw, 72px);
+}
+.cs__kicker {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(244, 245, 247, 0.45);
+  padding-top: 6px;
+}
+.cs__h {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(23px, 3.4vw, 40px);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin-bottom: 18px;
+}
+.cs__body > p {
+  font-size: clamp(15px, 1.5vw, 18px);
+  line-height: 1.7;
+  color: rgba(244, 245, 247, 0.68);
+  max-width: 60ch;
+}
+.cs__body > p + p {
+  margin-top: 16px;
+}
+.cs__figure {
+  margin-top: 32px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #131316;
+}
+.cs__figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.cs__figcap {
+  margin-top: 12px;
+  font-size: 12px;
+  color: rgba(244, 245, 247, 0.4);
+}
+.cs__stats {
+  margin-top: 34px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.cs__stat b {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(24px, 3vw, 36px);
+  letter-spacing: -0.01em;
+}
+.cs__stat span {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(244, 245, 247, 0.5);
+}
+.cs__gallery-grid {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 620px) {
+  .cs__gallery-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.cs__gallery-grid img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #131316;
+}
+.cs__end {
+  padding: clamp(44px, 8vh, 92px) 0 10vh;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(244, 245, 247, 0.4);
+}
+@media (max-width: 780px) {
+  .cs__section {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .cs__stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Story mode: panels slide in as a full-screen overlay ON TOP of a    */
+/* pinned hero, driven directly by scroll position (see work.ts).      */
+/* `.work` itself is stretched tall to provide the scroll distance;    */
+/* the hero + stage are fixed layers that the later sections cover.    */
+/* ------------------------------------------------------------------ */
+html.story-mode .hero {
+  position: fixed;
+  inset: 0;
+  min-height: 0;
+  height: 100vh;
+  z-index: 1;
+}
+html.story-mode .work {
+  padding-top: 0;
+  /* height set inline by work.ts = (panel count) x viewport height */
+}
+html.story-mode .work-stage {
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+  z-index: 2;
+  background: transparent;
+  pointer-events: none;
+}
+html.story-mode .work-stage.is-live {
+  pointer-events: auto;
+}
+/* Panels start off-screen right; work.ts positions them in px from first paint. */
+html.story-mode .work-panel {
+  visibility: hidden;
+}
+html.story-mode .work-panel.is-placed {
+  visibility: visible;
+}
+html.story-mode .work-stage-ui,
+html.story-mode .work-stage-nav {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+html.story-mode .work-stage.is-live .work-stage-ui,
+html.story-mode .work-stage.is-live .work-stage-nav {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* Past the last panel: drop the fixed layers so About/Contact take over. */
+html.story-mode.story-done .hero,
+html.story-mode.story-done .work-stage {
+  visibility: hidden;
+}
+/* Later sections must paint opaquely above the fixed hero/stage. */
+html.story-mode .about,
+html.story-mode .contact,
+html.story-mode .footer {
+  position: relative;
+  z-index: 3;
+  background: var(--bg);
+}
+
+/* ---- Fallback (no story mode): projects just stack and scroll ---- */
+html:not(.story-mode) .work-stage {
+  height: auto;
+  overflow: visible;
+}
+html:not(.story-mode) .work-panels {
+  height: auto;
+}
+html:not(.story-mode) .work-panel {
+  position: relative;
+  overflow: visible;
+}
+html:not(.story-mode) .work-panel__scroll {
+  position: static;
+  transform: none !important;
+}
+html:not(.story-mode) .cs__cover {
+  min-height: 60vh;
+}
+
+/* ---- "Opening next project" loader ---- */
+.work-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: #08080a;
+  color: #f4f5f7;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+}
+.work-loader.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.25s ease;
+}
+.work-loader__inner {
+  width: min(440px, 74vw);
+}
+.work-loader__label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(244, 245, 247, 0.5);
+  margin-bottom: 16px;
+}
+.work-loader__num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(40px, 9vw, 76px);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.work-loader__title {
+  display: block;
+  margin-top: 8px;
+  font-size: clamp(15px, 1.6vw, 18px);
+  color: rgba(244, 245, 247, 0.62);
+}
+.work-loader__bar {
+  display: block;
+  margin-top: 24px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+.work-loader__bar > i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: var(--metal-gradient);
+}
+.work-loader.is-running .work-loader__bar > i {
+  animation: work-loader-fill 1.5s cubic-bezier(0.4, 0, 0.1, 1) forwards;
+}
+@keyframes work-loader-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .work-loader {
+    display: none;
+  }
+}
+
+.work-stage-ui {
+  position: absolute;
+  bottom: 26px;
+  right: var(--edge);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.work-stage-index {
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: rgba(244, 245, 247, 0.55);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Previous-project / all-projects controls — a full-width bar pinned just
+   under the header inside the (fixed) stage, so it stays put while the
+   header itself hides and shows on scroll. */
+.work-stage-nav {
+  position: absolute;
+  top: 90px;
+  left: 0;
+  right: 0;
+  padding: 0 var(--edge);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.work-stage-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  /* Solid-ish dark fill + blur so scrolling content behind stays readable. */
+  background: rgba(12, 12, 14, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #f4f5f7;
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.work-stage-btn svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+.work-stage-btn:hover,
+.work-stage-btn:focus-visible {
+  background: rgba(28, 28, 32, 0.72);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.work-stage-btn--prev {
+  padding: 9px 18px 9px 14px;
+  border-radius: 999px;
+}
+.work-stage-btn--grid {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 9px;
+}
+@media (max-width: 640px) {
+  .work-stage-btn--prev span {
+    display: none;
+  }
+  .work-stage-btn--prev {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 9px;
+  }
+}
+
+/* Grid overview — every project as a card, reusing the .card component. */
+.work-overview {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg);
+  overflow-y: auto;
+  padding: 96px var(--edge) 64px;
+}
+html.overview-open {
+  overflow: hidden;
+}
+.work-overview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  max-width: 1320px;
+  margin-inline: auto;
+}
+.work-overview-close {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.work-overview-close:hover,
+.work-overview-close:focus-visible {
+  border-color: var(--metal-4);
+}
+
+.work-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  max-width: 1320px;
+  margin-inline: auto;
+}
+.work-overview-grid .card {
+  opacity: 1;
+  transform: none;
+}
+@media (max-width: 860px) {
+  .work-overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  position: relative;
+  background: var(--bg);
+  padding: 28px 28px 26px;
+  text-decoration: none;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  opacity: 0;
+  transform: translateY(28px);
+  transition: box-shadow 0.35s ease, transform 0.35s ease;
+}
+.card:hover,
+.card:focus-visible {
+  box-shadow: 0 24px 48px rgba(19, 19, 22, 0.1);
+  transform: translateY(-4px);
+}
+
+.card__frame {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-alt);
+  transition: border-color 0.3s ease;
+}
+.card:hover .card__frame,
+.card:focus-visible .card__frame {
+  border-color: var(--metal-3);
+}
+
+.card__cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card:hover .card__cover,
+.card:focus-visible .card__cover {
+  transform: scale(1.035);
+}
+
+.card__view {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  transform: translateY(6px);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  padding: 6px 12px;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(19, 19, 22, 0.1);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+.card:hover .card__view,
+.card:focus-visible .card__view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card__body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.card__title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+}
+
+.card__desc {
+  font-size: 14px;
+  color: var(--muted);
+  max-width: 44ch;
+  line-height: 1.55;
+}
+
+.card__year {
+  font-size: 13px;
+  color: var(--muted);
+  flex: none;
+  padding-top: 3px;
+}
+
+.card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+.card__tag {
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 10px;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.card:hover .card__tag,
+.card:focus-visible .card__tag {
+  border-color: var(--metal-3);
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------------ */
+/* About                                                                */
+/* ------------------------------------------------------------------ */
+.about {
+  padding-bottom: 60px;
+}
+
+.about__grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 60px;
+  padding: 0 var(--edge);
+  align-items: center;
+}
+
+@media (max-width: 860px) {
+  .about__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.about__figure {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24px;
+  background: var(--bg-alt);
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.about__figure-ring {
+  width: 56%;
+  height: 56%;
+  border-radius: 50%;
+  padding: 3px;
+  background: conic-gradient(
+    from 0deg,
+    var(--metal-1),
+    var(--metal-3),
+    var(--metal-1),
+    var(--metal-2),
+    var(--metal-4),
+    var(--metal-1)
+  );
+  animation: spin 16s linear infinite;
+}
+.about__figure-ring::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--bg-alt);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.about__text {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.about__text .section-title {
+  margin-bottom: 6px;
+}
+.about__text p {
+  color: var(--muted);
+  font-size: 15.5px;
+  line-height: 1.7;
+  max-width: 58ch;
+}
+
+.about__skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+.skill-pill {
+  font-size: 13px;
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 7px 14px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.skill-pill:hover {
+  border-color: var(--metal-3);
+  background: var(--bg-alt);
+}
+
+/* ------------------------------------------------------------------ */
+/* Contact                                                              */
+/* ------------------------------------------------------------------ */
+.contact {
+  padding-bottom: 140px;
+  padding-top: clamp(90px, 16vh, 180px);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contact__headline {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(36px, 7vw, 84px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin-bottom: 36px;
+}
+
+.contact__mail {
+  font-size: clamp(15px, 1.8vw, 20px);
+  text-decoration: none;
+  color: var(--ink);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 4px;
+  transition: border-color 0.2s ease;
+  margin-bottom: 40px;
+}
+.contact__mail:hover,
+.contact__mail:focus-visible {
+  border-color: var(--metal-4);
+}
+
+.contact__socials {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.contact__social {
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  color: var(--muted);
+  transition: color 0.2s ease;
+}
+.contact__social:hover,
+.contact__social:focus-visible {
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------------ */
+/* Footer                                                               */
+/* ------------------------------------------------------------------ */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px var(--edge) 32px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+.footer a {
+  text-decoration: none;
+  color: var(--muted);
+  transition: color 0.2s ease;
+}
+.footer a:hover,
+.footer a:focus-visible {
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion                                                      */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
