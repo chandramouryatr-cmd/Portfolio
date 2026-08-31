@@ -18,7 +18,9 @@
 import type { CaseStudy, CaseStudyFeature, FeatureDetails } from "./caseStudyData";
 import { wireframeCover } from "./wireframe";
 
-const TAB_DEFS: { key: keyof FeatureDetails; label: string }[] = [
+type TabKey = "problemAnalysis" | "userResearch" | "personas" | "journey" | "process" | "metrics";
+
+const TAB_DEFS: { key: TabKey; label: string }[] = [
   { key: "problemAnalysis", label: "Problem Analysis" },
   { key: "userResearch", label: "User Research" },
   { key: "personas", label: "Personas" },
@@ -188,7 +190,7 @@ function closeModal(modal: HTMLElement) {
   document.documentElement.classList.remove("cs-modal-open");
 }
 
-function renderTabBody(key: keyof FeatureDetails, details: FeatureDetails): string {
+function renderTabBody(key: TabKey, details: FeatureDetails): string {
   switch (key) {
     case "problemAnalysis":
       return `<div class="cs-tab cs-tab--prose">${details.problemAnalysis
@@ -261,7 +263,7 @@ function openDetail(cs: CaseStudy, feature: CaseStudyFeature) {
   const { modal, title, tabs, body, downloadTab, downloadFeature, downloadReport } = refs;
   title.textContent = feature.title;
 
-  let activeKey: keyof FeatureDetails = "problemAnalysis";
+  let activeKey: TabKey = "problemAnalysis";
 
   function paint() {
     tabs.innerHTML = TAB_DEFS.map(
@@ -273,7 +275,7 @@ function openDetail(cs: CaseStudy, feature: CaseStudyFeature) {
     body.innerHTML = renderTabBody(activeKey, feature.details);
     tabs.querySelectorAll<HTMLButtonElement>("[data-tab]").forEach((btn) => {
       btn.addEventListener("click", () => {
-        activeKey = btn.dataset.tab as keyof FeatureDetails;
+        activeKey = btn.dataset.tab as TabKey;
         paint();
       });
     });
@@ -405,11 +407,11 @@ export function wireRichCaseStudy(panelRoot: HTMLElement, cs: CaseStudy, project
       fillContent(i);
       return;
     }
-    fixedFrame.classList.add("is-changing");
+    fixedFrame!.classList.add("is-changing");
     window.setTimeout(() => {
       if (token !== paintToken) return; // a newer paint() superseded this one
       fillContent(i);
-      fixedFrame.classList.remove("is-changing");
+      fixedFrame!.classList.remove("is-changing");
     }, 220);
   }
 
