@@ -330,6 +330,22 @@ export function initWorkStage(projects: Project[], lenis: Lenis | null) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   });
+
+  // "Move to About Us" — skip the rest of the story and land on the About
+  // section directly (no per-project loaders).
+  document.getElementById("workSkipAbout")?.addEventListener("click", () => {
+    gsap.killTweensOf(panels);
+    transitioning = false;
+    document.documentElement.classList.add("story-done");
+    setLive(false);
+    const y = storyStart + trackLen;
+    if (lenis) {
+      lenis.start();
+      lenis.scrollTo(y, { immediate: true, force: true });
+    } else {
+      window.scrollTo(0, y);
+    }
+  });
 }
 
 /* ------------------------------------------------------------------ */

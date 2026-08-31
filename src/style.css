@@ -854,13 +854,15 @@ html.story-mode .work-panel.is-placed {
   visibility: visible;
 }
 html.story-mode .work-stage-ui,
-html.story-mode .work-stage-nav {
+html.story-mode .work-stage-nav,
+html.story-mode .work-stage-skip {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.4s ease;
 }
 html.story-mode .work-stage.is-live .work-stage-ui,
-html.story-mode .work-stage.is-live .work-stage-nav {
+html.story-mode .work-stage.is-live .work-stage-nav,
+html.story-mode .work-stage.is-live .work-stage-skip {
   opacity: 1;
   pointer-events: auto;
 }
@@ -1044,6 +1046,45 @@ html:not(.story-mode) .cs__cover {
     height: 38px;
     padding: 0;
     border-radius: 9px;
+  }
+}
+
+/* Floating "skip to About" pill, pinned bottom-centre of the stage. */
+.work-stage-skip {
+  position: absolute;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(12, 12, 14, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #f4f5f7;
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.25s ease;
+}
+.work-stage-skip svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+.work-stage-skip:hover,
+.work-stage-skip:focus-visible {
+  background: rgba(28, 28, 32, 0.72);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+@media (max-width: 560px) {
+  .work-stage-ui {
+    bottom: 74px;
   }
 }
 
