@@ -62,8 +62,14 @@ ScrollTrigger.create({
     const y = self.scroll();
     nav?.classList.toggle("is-scrolled", y > 40);
     // Hide while scrolling down, reveal while scrolling up; always show near top.
-    if (y < 90) nav?.classList.remove("is-hidden");
-    else nav?.classList.toggle("is-hidden", self.direction === 1);
+    let hidden: boolean;
+    if (y < 90) hidden = false;
+    else hidden = self.direction === 1;
+    nav?.classList.toggle("is-hidden", hidden);
+    // Mirrored onto <html> so chrome elsewhere (e.g. the story's "previous
+    // project" control) can close the gap the header leaves when it's gone,
+    // and reopen it the moment the header comes back.
+    document.documentElement.classList.toggle("nav-hidden", hidden);
   },
 });
 

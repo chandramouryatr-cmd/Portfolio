@@ -133,6 +133,37 @@
             <span class="work-loader__bar"><i></i></span>
           </div>
         </div>
+        <div class="cs-modal" id="csModal" hidden>
+          <div class="cs-modal__panel" role="dialog" aria-modal="true" aria-labelledby="csModalTitle">
+            <div class="cs-modal__head">
+              <h3 class="cs-modal__title" id="csModalTitle"></h3>
+              <div class="cs-modal__head-actions">
+                <div class="cs-modal__downloads">
+                  <button type="button" class="cs-modal__download" id="csModalDownloadTab">Tab PDF</button>
+                  <button type="button" class="cs-modal__download" id="csModalDownloadFeature">Feature PDF</button>
+                  <button type="button" class="cs-modal__download" id="csModalDownloadReport">Full report PDF</button>
+                </div>
+                <button type="button" class="cs-modal__close" id="csModalClose" aria-label="Close details">
+                  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M4 4 L16 16 M16 4 L4 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="cs-modal__tabs" id="csModalTabs" role="tablist"></div>
+            <div class="cs-modal__body" id="csModalBody"></div>
+          </div>
+        </div>
+        <div class="cs-proto" id="csProto" hidden>
+          <div class="cs-proto__frame">
+            <button type="button" class="cs-proto__close" id="csProtoClose" aria-label="Close prototype">
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M4 4 L16 16 M16 4 L4 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+            </button>
+            <iframe id="csProtoFrame" title="Ward Round interactive prototype" loading="lazy"></iframe>
+          </div>
+        </div>
       </section>
 
       <section id="about" class="about">

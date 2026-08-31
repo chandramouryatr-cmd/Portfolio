@@ -16,6 +16,8 @@ import gsap from "gsap";
 import type Lenis from "lenis";
 import type { Project } from "./data";
 import { wireframeCover } from "./wireframe";
+import { caseStudies } from "./caseStudyData";
+import { richCaseStudyScrollMarkup, richCaseStudyFixedMarkup, wireRichCaseStudy } from "./caseStudy";
 
 const HOLD_MS = 1500; // loader dwell — must match @keyframes work-loader-fill
 const SLIDE_MS = 620; // next-panel slide-in duration
@@ -62,6 +64,11 @@ export function initWorkStage(projects: Project[], lenis: Lenis | null) {
   const panels = gsap.utils.toArray<HTMLElement>(".work-panel", panelsEl);
   const scrollers = panels.map((pn) => pn.querySelector<HTMLElement>(".work-panel__scroll")!);
 
+  projects.forEach((p, i) => {
+    const cs = caseStudies[p.id];
+    if (cs) wireRichCaseStudy(panels[i], cs, p.seed);
+  });
+
   const setIndex = (i: number) => {
     if (indexEl)
       indexEl.textContent = `${String(i + 1).padStart(2, "0")} / ${String(n).padStart(2, "0")}`;
@@ -92,11 +99,13 @@ export function initWorkStage(projects: Project[], lenis: Lenis | null) {
 
   // ============================================================
   // Fallback — no scroll-jacking: projects just stack and scroll.
+  // (Only for reduced motion — even a single project still gets the
+  // intro slide-in and its own scroll-driven feature story.)
   // ============================================================
-  if (reduceMotion || n < 2) {
+  if (reduceMotion) {
     setIndex(0);
     wireCards((idx) =>
-      panels[idx].scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" })
+      panels[idx].scrollIntoView({ behavior: "auto", block: "start" })
     );
     return;
   }
@@ -367,17 +376,55 @@ function fauxStats(seed: number): [string, string][] {
   ];
 }
 
-function caseStudyMarkup(p: Project, i: number, total: number): string {
-  const cover = wireframeCover(p.seed);
+function simpleSectionsMarkup(p: Project, domain: string, stats: [string, string][]): string {
   const shotA = wireframeCover(p.seed + 11);
   const shotB = wireframeCover(p.seed + 23);
+  const cover = wireframeCover(p.seed);
+  return `
+    <section class="cs__section">
+      <span class="cs__kicker">Overview</span>
+      <div class="cs__body">
+        <h4 class="cs__h">What this was</h4>
+        <p>${p.title} was a focused engagement to ${lowerFirst(p.description).replace(/\.$/, "")}. The existing ${domain} experience had grown by accretion — every team had added the one thing they needed, and it asked too much of the people using it.</p>
+        <p>All copy here is placeholder; the layout is the point for now.</p>
+      </div>
+    </section>
+
+    <section class="cs__section">
+      <span class="cs__kicker">Approach</span>
+      <div class="cs__body">
+        <h4 class="cs__h">How we worked</h4>
+        <p>Design happened in the open: low-fidelity flows reviewed daily, a shared prototype on the same cadence, and every change earning its place against one measure — how many decisions a person has to make to get where they're going.</p>
+        <figure class="cs__figure"><img src="${shotA}" alt="" loading="lazy" /></figure>
+        <figcaption class="cs__figcap">Mid-fidelity exploration — placeholder wireframe.</figcaption>
+      </div>
+    </section>
+
+    <section class="cs__section">
+      <span class="cs__kicker">Outcome</span>
+      <div class="cs__body">
+        <h4 class="cs__h">Where it landed</h4>
+        <p>The work shipped in stages. Adoption held, the rough edges got quieter, and the team had something they could extend without a designer in the room.</p>
+        <div class="cs__stats">
+          ${stats.map((s) => `<div class="cs__stat"><b>${s[0]}</b><span>${s[1]}</span></div>`).join("")}
+        </div>
+        <div class="cs__gallery-grid">
+          <img src="${shotB}" alt="" loading="lazy" />
+          <img src="${cover}" alt="" loading="lazy" />
+        </div>
+      </div>
+    </section>`;
+}
+
+function caseStudyMarkup(p: Project, i: number, total: number): string {
   const domain = (p.tags[0] ?? "product").toLowerCase();
   const stats = fauxStats(p.seed);
+  const cs = caseStudies[p.id];
 
   return `
   <article class="work-panel" data-index="${i}">
     <div class="work-panel__scroll">
-      <div class="cs">
+      <div class="cs${cs ? " cs--rich" : ""}">
         <header class="cs__cover">
           <span class="cs__eyebrow">Case ${String(i + 1).padStart(2, "0")} · ${p.year}</span>
           <h3 class="cs__title">${p.title}</h3>
@@ -386,44 +433,13 @@ function caseStudyMarkup(p: Project, i: number, total: number): string {
           <span class="cs__scrollhint">Scroll</span>
         </header>
 
-        <section class="cs__section">
-          <span class="cs__kicker">Overview</span>
-          <div class="cs__body">
-            <h4 class="cs__h">What this was</h4>
-            <p>${p.title} was a focused engagement to ${lowerFirst(p.description).replace(/\.$/, "")}. The existing ${domain} experience had grown by accretion — every team had added the one thing they needed, and it asked too much of the people using it.</p>
-            <p>All copy here is placeholder; the layout is the point for now.</p>
-          </div>
-        </section>
-
-        <section class="cs__section">
-          <span class="cs__kicker">Approach</span>
-          <div class="cs__body">
-            <h4 class="cs__h">How we worked</h4>
-            <p>Design happened in the open: low-fidelity flows reviewed daily, a shared prototype on the same cadence, and every change earning its place against one measure — how many decisions a person has to make to get where they're going.</p>
-            <figure class="cs__figure"><img src="${shotA}" alt="" loading="lazy" /></figure>
-            <figcaption class="cs__figcap">Mid-fidelity exploration — placeholder wireframe.</figcaption>
-          </div>
-        </section>
-
-        <section class="cs__section">
-          <span class="cs__kicker">Outcome</span>
-          <div class="cs__body">
-            <h4 class="cs__h">Where it landed</h4>
-            <p>The work shipped in stages. Adoption held, the rough edges got quieter, and the team had something they could extend without a designer in the room.</p>
-            <div class="cs__stats">
-              ${stats.map((s) => `<div class="cs__stat"><b>${s[0]}</b><span>${s[1]}</span></div>`).join("")}
-            </div>
-            <div class="cs__gallery-grid">
-              <img src="${shotB}" alt="" loading="lazy" />
-              <img src="${cover}" alt="" loading="lazy" />
-            </div>
-          </div>
-        </section>
+        ${cs ? richCaseStudyScrollMarkup(cs) : simpleSectionsMarkup(p, domain, stats)}
 
         <p class="cs__end">${
           i < total - 1 ? "Keep scrolling — opening the next project" : "Keep scrolling to leave the work"
         }</p>
       </div>
     </div>
+    ${cs ? richCaseStudyFixedMarkup(cs.prototypeUrl) : ""}
   </article>`;
 }

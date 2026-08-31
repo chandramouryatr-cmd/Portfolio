@@ -819,6 +819,896 @@ section {
 }
 
 /* ------------------------------------------------------------------ */
+/* Rich case study: Hero (problem/solution) + Feature showcases         */
+/* (portfolio-layout-prompt.md). See caseStudyData.ts for which          */
+/* project id has this content.                                         */
+/* ------------------------------------------------------------------ */
+.cs-hero {
+  padding: clamp(44px, 8vh, 92px) 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(24px, 5vw, 64px);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.cs-hero.is-in-view {
+  opacity: 1;
+  transform: none;
+}
+.cs-hero__label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(244, 245, 247, 0.45);
+  margin-bottom: 14px;
+}
+.cs-hero__col p {
+  font-size: clamp(16px, 1.7vw, 21px);
+  line-height: 1.6;
+  color: rgba(244, 245, 247, 0.85);
+}
+.cs-hero__col--problem p {
+  color: rgba(244, 245, 247, 0.62);
+}
+.cs-hero__outcome {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(16px, 1.6vw, 19px);
+  color: #ffffff;
+}
+@media (max-width: 780px) {
+  .cs-hero {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+
+/* Scroll-room markers — invisible; they only reserve vertical space so the
+   surrounding project pacing (work.ts measures real content height) accounts
+   for "browsing features." Never seen — the persistent frame covers them. */
+.cs-feat-track {
+  position: relative;
+}
+.cs-feat-marker {
+  height: 78vh;
+}
+
+/* The persistent feature frame — a SIBLING of the scrollable case-study
+   content, not a descendant of it, so it isn't dragged around by that
+   content's own JS scroll-transform (see work.ts). One frame, shown/hidden
+   and repainted entirely by JS as the marker track scrolls through view —
+   nothing here scrolls away; only the text/device state changes in place. */
+.cs-feat-fixed[hidden] {
+  display: none;
+}
+.cs-feat-fixed {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(220px, 340px) 1fr;
+  align-items: center;
+  gap: clamp(32px, 6vw, 80px);
+  padding: 0 var(--edge);
+  background: #0a0a0a;
+  color: #f4f5f7;
+}
+/* Reduced-motion fallback: sits in normal flow instead of covering the
+   viewport, with a manual "Next feature" step instead of scroll-driven. */
+.cs-feat-fixed--static {
+  position: relative;
+  inset: auto;
+  min-height: 90vh;
+  padding: clamp(56px, 10vh, 100px) var(--edge);
+}
+@media (max-width: 780px) {
+  .cs-feat-fixed {
+    grid-template-columns: 1fr;
+    align-content: center;
+    row-gap: 24px;
+    padding-top: 96px;
+    padding-bottom: 40px;
+    overflow-y: auto;
+  }
+}
+
+.cs-feat__counter {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: rgba(244, 245, 247, 0.4);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 14px;
+  transition: opacity 0.2s ease;
+}
+
+/* ---- Device mockup column ---- */
+.cs-feat__device {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.cs-feat__switch {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+}
+.cs-feat__switch-btn {
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  color: rgba(244, 245, 247, 0.55);
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.cs-feat__switch-btn.is-active {
+  background: #ffffff;
+  color: #0a0a0a;
+}
+.cs-feat__switch-btn:not(.is-active):hover {
+  color: #ffffff;
+}
+
+.cs-feat__frame {
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: #131316;
+  padding: 10px;
+  transition: width 0.35s ease, aspect-ratio 0.35s ease, border-radius 0.35s ease;
+  width: 230px;
+}
+.cs-feat__frame[data-bp="mobile"] {
+  width: 210px;
+  aspect-ratio: 9 / 18.5;
+  border-radius: 26px;
+}
+.cs-feat__frame[data-bp="tablet"] {
+  width: 300px;
+  aspect-ratio: 4 / 3;
+  border-radius: 18px;
+}
+.cs-feat__frame[data-bp="web"] {
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 16 / 10;
+  border-radius: 12px;
+}
+.cs-feat__screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+  background-color: #1a1a1e;
+}
+/* Two stacked layers crossfade between step screens — the device visibly
+   moves through the app's states rather than narrating over one still. */
+.cs-feat__screen-img {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+/* Live (view-only) preview of the real prototype, authored at a fixed
+   phone size and scaled by JS to fit the current frame — a genuine
+   rendering of the app, not a generated placeholder. "Experience" opens
+   the same thing full-size and interactive; this is just a quiet preview,
+   so it doesn't intercept clicks itself. */
+.cs-feat__screen-proto {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 390px;
+  height: 844px;
+  transform-origin: top left;
+  border: none;
+  z-index: 0;
+  pointer-events: none;
+  background: #ffffff;
+}
+.cs-feat__screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to top, rgba(10, 10, 10, 0.88), rgba(10, 10, 10, 0.35) 55%, transparent);
+}
+
+.cs-feat__steps {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.cs-feat__step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  letter-spacing: 0.01em;
+  color: rgba(244, 245, 247, 0.45);
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+.cs-feat__step:hover {
+  color: rgba(244, 245, 247, 0.75);
+}
+.cs-feat__step-dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+.cs-feat__step.is-active {
+  color: #ffffff;
+}
+.cs-feat__step.is-active .cs-feat__step-dot {
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.18);
+}
+.cs-feat__step.is-done {
+  color: rgba(244, 245, 247, 0.7);
+}
+.cs-feat__step.is-done .cs-feat__step-dot {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.cs-feat__experience {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: #0a0a0a;
+  background: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.cs-feat__experience svg {
+  width: 11px;
+  height: 11px;
+}
+.cs-feat__experience:hover {
+  transform: translateY(-1px);
+}
+.cs-feat__experience.is-running {
+  opacity: 0.6;
+  cursor: default;
+  transform: none;
+}
+.cs-feat__hint {
+  font-size: 11px;
+  color: rgba(244, 245, 247, 0.35);
+  text-align: center;
+}
+
+/* ---- Explanation column — content crossfades as the active feature      */
+/* changes (see .is-changing below); no scroll-reveal states needed since   */
+/* the frame itself is only ever shown once, not per-feature.               */
+.cs-feat__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(24px, 3.2vw, 38px);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  transition: opacity 0.2s ease;
+}
+.cs-feat__statement {
+  margin-top: 12px;
+  font-size: clamp(15px, 1.5vw, 18px);
+  color: rgba(244, 245, 247, 0.6);
+  max-width: 48ch;
+  transition: opacity 0.2s ease;
+}
+
+.cs-feat__text-wrap {
+  display: grid;
+  grid-template-columns: 2px 1fr;
+  gap: 22px;
+  margin-top: 28px;
+}
+.cs-feat__rail {
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 1px;
+}
+.cs-feat__text {
+  transition: opacity 0.2s ease;
+}
+.cs-feat__text p {
+  font-size: clamp(15px, 1.5vw, 17px);
+  line-height: 1.7;
+  color: rgba(244, 245, 247, 0.68);
+  max-width: 58ch;
+}
+.cs-feat__text p + p {
+  margin-top: 14px;
+}
+
+/* The crossfade beat itself, driven by JS toggling .is-changing on the
+   frame while it swaps the DOM content underneath. */
+.cs-feat-fixed.is-changing .cs-feat__counter,
+.cs-feat-fixed.is-changing .cs-feat__title,
+.cs-feat-fixed.is-changing .cs-feat__statement,
+.cs-feat-fixed.is-changing .cs-feat__text {
+  opacity: 0;
+}
+
+.cs-feat__detail-btn {
+  margin-top: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  padding: 11px 20px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, gap 0.2s ease, background 0.2s ease;
+}
+.cs-feat__detail-btn:hover,
+.cs-feat__detail-btn:focus-visible {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.06);
+  gap: 14px;
+}
+
+/* Reduced-motion fallback control (see .cs-feat-fixed--static) — manual
+   stepping instead of the scroll-driven marker track. */
+.cs-feat__next {
+  display: block;
+  margin-top: 18px;
+  font-size: 13px;
+  color: rgba(244, 245, 247, 0.7);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.cs-feat__next:hover,
+.cs-feat__next:focus-visible {
+  color: #ffffff;
+}
+
+/* ------------------------------------------------------------------ */
+/* Details modal — six tabs of deeper research per feature              */
+/* ------------------------------------------------------------------ */
+.cs-modal[hidden] {
+  display: none;
+}
+.cs-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 4vh, 56px) var(--edge);
+  background: rgba(6, 6, 7, 0.72);
+  backdrop-filter: blur(6px);
+}
+html.cs-modal-open {
+  overflow: hidden;
+}
+
+/* Prototype overlay — the real interactive prototype, opened full-size
+   (a genuine phone viewport) rather than shrunk into the small in-flow
+   device frame, so it's actually usable to click through. */
+.cs-proto[hidden] {
+  display: none;
+}
+.cs-proto {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 4vh, 48px) 16px;
+  background: rgba(6, 6, 7, 0.82);
+  backdrop-filter: blur(8px);
+}
+html.cs-proto-open {
+  overflow: hidden;
+}
+.cs-proto__frame {
+  position: relative;
+  width: min(430px, 100%);
+  height: min(900px, 100%);
+  border-radius: 36px;
+  overflow: hidden;
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.5);
+}
+#csProtoFrame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  background: #ffffff;
+}
+.cs-proto__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: rgba(10, 10, 10, 0.55);
+  color: #ffffff;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: background 0.2s ease;
+}
+.cs-proto__close svg {
+  width: 13px;
+  height: 13px;
+}
+.cs-proto__close:hover {
+  background: rgba(10, 10, 10, 0.8);
+}
+@media (max-width: 480px) {
+  .cs-proto {
+    padding: 0;
+  }
+  .cs-proto__frame {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+.cs-modal__panel {
+  width: 100%;
+  max-width: 860px;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #131316;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  color: #f4f5f7;
+  overflow: hidden;
+}
+.cs-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.cs-modal__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+}
+.cs-modal__head-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+.cs-modal__downloads {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cs-modal__download {
+  font-size: 12px;
+  white-space: nowrap;
+  color: rgba(244, 245, 247, 0.75);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  padding: 7px 13px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.cs-modal__download:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+}
+@media (max-width: 640px) {
+  .cs-modal__head {
+    flex-wrap: wrap;
+  }
+  .cs-modal__downloads {
+    order: 3;
+    width: 100%;
+  }
+}
+.cs-modal__close {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  color: #f4f5f7;
+  cursor: pointer;
+}
+.cs-modal__close svg {
+  width: 13px;
+  height: 13px;
+}
+.cs-modal__close:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.cs-modal__tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 20px 0;
+  overflow-x: auto;
+  flex: none;
+}
+.cs-modal__tab {
+  font-size: 13px;
+  white-space: nowrap;
+  color: rgba(244, 245, 247, 0.55);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 8px 12px 12px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.cs-modal__tab:hover {
+  color: rgba(244, 245, 247, 0.85);
+}
+.cs-modal__tab.is-active {
+  color: #ffffff;
+  border-bottom-color: #ffffff;
+}
+
+.cs-modal__body {
+  padding: 26px 24px 32px;
+  overflow-y: auto;
+}
+
+.cs-tab--prose p {
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: rgba(244, 245, 247, 0.75);
+}
+.cs-tab--prose p + p {
+  margin-top: 14px;
+}
+
+.cs-quote {
+  margin: 0 0 18px;
+  padding: 16px 18px;
+  border-left: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0 8px 8px 0;
+}
+.cs-quote p {
+  font-size: 15px;
+  line-height: 1.55;
+  font-style: italic;
+  color: rgba(244, 245, 247, 0.88);
+}
+.cs-quote cite {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  font-style: normal;
+  color: rgba(244, 245, 247, 0.5);
+}
+
+.cs-tab--personas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+.cs-persona {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 16px;
+}
+.cs-persona__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.cs-persona__head b {
+  font-family: var(--font-display);
+  font-size: 15px;
+}
+.cs-persona__head span {
+  font-size: 12px;
+  color: rgba(244, 245, 247, 0.5);
+}
+.cs-persona p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(244, 245, 247, 0.7);
+  margin-top: 6px;
+}
+.cs-persona p b {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(244, 245, 247, 0.4);
+  margin-bottom: 2px;
+}
+
+.cs-journey-step {
+  padding: 14px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+}
+.cs-journey-step:first-child {
+  border-top: none;
+}
+.cs-journey-step__stage {
+  font-family: var(--font-display);
+  font-size: 14.5px;
+}
+.cs-journey-step__feeling {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  height: fit-content;
+  color: rgba(244, 245, 247, 0.8);
+  background: rgba(255, 255, 255, 0.08);
+}
+.cs-journey-step--frustrated .cs-journey-step__feeling {
+  background: rgba(215, 96, 82, 0.18);
+  color: #e8a79c;
+}
+.cs-journey-step--confident .cs-journey-step__feeling {
+  background: rgba(96, 178, 130, 0.18);
+  color: #9fd4b6;
+}
+.cs-journey-step p {
+  grid-column: 1 / -1;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: rgba(244, 245, 247, 0.6);
+}
+
+.cs-process-step {
+  display: flex;
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.cs-process-step:first-child {
+  border-top: none;
+}
+.cs-process-step__num {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: rgba(244, 245, 247, 0.4);
+  flex: none;
+  padding-top: 2px;
+}
+.cs-process-step b {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 14.5px;
+  margin-bottom: 4px;
+}
+.cs-process-step p {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: rgba(244, 245, 247, 0.6);
+}
+
+.cs-tab--metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 18px;
+}
+.cs-metric {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 18px;
+}
+.cs-metric b {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(20px, 2.6vw, 26px);
+}
+.cs-metric span {
+  display: block;
+  margin-top: 6px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: rgba(244, 245, 247, 0.55);
+}
+
+/* Survey/behavioural findings alongside quotes in User Research */
+.cs-stat-list {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  list-style: none;
+}
+.cs-stat-list li {
+  position: relative;
+  padding-left: 16px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: rgba(244, 245, 247, 0.68);
+}
+.cs-stat-list li + li {
+  margin-top: 8px;
+}
+.cs-stat-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(244, 245, 247, 0.4);
+}
+
+/* Empathy map — shown under the journey stages when a feature has one */
+.cs-empathy {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.cs-empathy__title {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(244, 245, 247, 0.4);
+  margin-bottom: 12px;
+}
+.cs-empathy__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+}
+.cs-empathy__grid > div {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.cs-empathy__grid b {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(244, 245, 247, 0.4);
+  margin-bottom: 6px;
+}
+.cs-empathy__grid p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(244, 245, 247, 0.72);
+}
+
+/* Print-only headings used by the "feature" and "full report" PDF tiers,
+   which stack every tab (or every feature's every tab) into the modal body
+   just for the print, then restore the normal single-tab view after. */
+.cs-print__feature-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+.cs-print__block {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.cs-print__block h3 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(244, 245, 247, 0.5);
+  margin-bottom: 12px;
+}
+.cs-print__report-feature + .cs-print__report-feature {
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .cs-modal,
+  .cs-modal * {
+    visibility: visible;
+  }
+  .cs-modal {
+    position: static;
+    background: #ffffff;
+    padding: 0;
+    backdrop-filter: none;
+  }
+  .cs-modal__panel {
+    max-width: none;
+    max-height: none;
+    background: #ffffff;
+    color: #131316;
+    border: none;
+  }
+  .cs-modal__head-actions,
+  .cs-modal__tabs {
+    display: none;
+  }
+  .cs-tab--prose p,
+  .cs-quote p,
+  .cs-persona p,
+  .cs-journey-step p,
+  .cs-process-step p,
+  .cs-metric span,
+  .cs-stat-list li,
+  .cs-empathy__grid p {
+    color: #444;
+  }
+  .cs-print__block,
+  .cs-stat-list,
+  .cs-empathy {
+    border-top-color: rgba(0, 0, 0, 0.12);
+  }
+  .cs-print__report-feature {
+    break-before: page;
+  }
+  .cs-print__report-feature:first-child {
+    break-before: avoid;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Story mode: panels slide in as a full-screen overlay ON TOP of a    */
 /* pinned hero, driven directly by scroll position (see work.ts).      */
 /* `.work` itself is stretched tall to provide the scroll distance;    */
@@ -999,6 +1889,12 @@ html:not(.story-mode) .cs__cover {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: top 0.4s cubic-bezier(0.4, 0, 0.1, 1);
+}
+/* The header auto-hides on scroll-down (see main.ts) — close the gap it
+   leaves behind, then reopen it the moment the header comes back. */
+html.nav-hidden .work-stage-nav {
+  top: 24px;
 }
 .work-stage-btn {
   display: inline-flex;
