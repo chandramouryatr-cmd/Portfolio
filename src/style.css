@@ -1170,11 +1170,6 @@ section {
   cursor: default;
   transform: none;
 }
-.cs-feat__hint {
-  font-size: 11px;
-  color: rgba(244, 245, 247, 0.35);
-  text-align: center;
-}
 
 /* ---- Explanation column — content crossfades as the active feature      */
 /* changes (see .is-changing below); no scroll-reveal states needed since   */

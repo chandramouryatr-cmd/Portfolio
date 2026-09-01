@@ -83,7 +83,6 @@ export function richCaseStudyFixedMarkup(prototypeUrl?: string): string {
           <span>Experience</span>
           <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 2.5 13 8 4 13.5Z" fill="currentColor" /></svg>
         </button>
-        <span class="cs-feat__hint">Click a step, or press Experience to walk through it</span>
       </div>
       <div class="cs-feat__info">
         <div class="cs-feat__info-head">
