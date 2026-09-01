@@ -86,17 +86,19 @@ export function richCaseStudyFixedMarkup(prototypeUrl?: string): string {
         <span class="cs-feat__hint">Click a step, or press Experience to walk through it</span>
       </div>
       <div class="cs-feat__info">
-        <span class="cs-feat__counter" data-feature-counter></span>
+        <div class="cs-feat__info-head">
+          <span class="cs-feat__counter" data-feature-counter></span>
+          <button type="button" class="cs-feat__detail-btn" data-feature-detail>
+            <span>Explain in Detail</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
         <h4 class="cs-feat__title" data-feature-title></h4>
         <p class="cs-feat__statement" data-feature-statement></p>
         <div class="cs-feat__text-wrap">
           <div class="cs-feat__rail" aria-hidden="true"></div>
           <div class="cs-feat__text" data-feature-text></div>
         </div>
-        <button type="button" class="cs-feat__detail-btn" data-feature-detail>
-          <span>Explain in Detail</span>
-          <span aria-hidden="true">→</span>
-        </button>
       </div>
     </div>`;
 }
