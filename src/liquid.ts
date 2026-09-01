@@ -224,10 +224,15 @@ export function initLiquidCurtain(config: FluidConfig = defaultFluidConfig) {
     if (state === "covered") startCollecting();
   });
 
-  const isTouch = window.matchMedia("(hover: none)").matches;
-  if (!reduceMotion && !isTouch) {
+  // Pointer Events unify mouse and touch: on a touch device this only fires
+  // while a finger is actually down and dragging (there's no hover), which
+  // is exactly the trigger we want there — drag to push the liquid instead
+  // of hovering to push it.
+  if (!reduceMotion) {
     window.addEventListener("pointermove", onPointerMove);
     hero.addEventListener("pointerleave", onPointerLeave);
+    hero.addEventListener("pointerup", onPointerLeave);
+    hero.addEventListener("pointercancel", onPointerLeave);
   }
   window.addEventListener("resize", resize);
 

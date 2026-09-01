@@ -105,6 +105,11 @@ h1, h2, h3, p {
   display: block;
   filter: blur(7px) contrast(24) drop-shadow(0 18px 34px rgba(0, 0, 0, 0.4));
 }
+/* While the curtain is up, a finger drag across it should push the liquid,
+   not trigger the browser's own scroll/overscroll/pull-to-refresh gesture. */
+html.scroll-locked #bg-canvas {
+  touch-action: none;
+}
 
 /* Faint background grid — reads as quiet structure, not the old blueprint
    look. Nudges a few px with the cursor via --grid-x/--grid-y (set in JS). */
