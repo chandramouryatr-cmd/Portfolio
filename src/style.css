@@ -907,14 +907,34 @@ section {
   min-height: 90vh;
   padding: clamp(56px, 10vh, 100px) var(--edge);
 }
+/* Mobile: the device mockup stays pinned in place (never cut off, never
+   scrolled past); only the text column underneath it scrolls, in the
+   space left over. Two flex children instead of one scrolling grid. */
 @media (max-width: 780px) {
   .cs-feat-fixed {
-    grid-template-columns: 1fr;
-    align-content: center;
-    row-gap: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
     padding-top: 96px;
-    padding-bottom: 40px;
+    padding-bottom: 0;
+    overflow: hidden;
+  }
+  .cs-feat__device {
+    flex: none;
+    padding-bottom: 20px;
+  }
+  .cs-feat__frame[data-bp="mobile"] {
+    width: auto;
+    height: min(40vh, 360px);
+  }
+  .cs-feat__info {
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Clears the "Move to About Us" pill pinned to the stage's bottom
+       edge, so the last line of text/button never sits under it. */
+    padding-bottom: 100px;
   }
 }
 
@@ -975,7 +995,7 @@ section {
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: #131316;
   padding: 10px;
-  transition: width 0.35s ease, aspect-ratio 0.35s ease, border-radius 0.35s ease;
+  transition: width 0.35s ease, height 0.35s ease, aspect-ratio 0.35s ease, border-radius 0.35s ease;
   width: 230px;
 }
 .cs-feat__frame[data-bp="mobile"] {
