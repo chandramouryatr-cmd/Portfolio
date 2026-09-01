@@ -931,6 +931,23 @@ section {
   html.nav-hidden .cs-feat-fixed {
     padding-top: 72px;
   }
+  /* The site header (logo + "Start a project") is redundant once a project
+     fills the screen — the story's own back-arrow already handles going
+     back — and on a small screen it's real vertical space worth reclaiming.
+     Hide it and let the work-stage-nav (and the device below it) sit at
+     the tight offset unconditionally, not just while scroll direction
+     happens to have already hidden it. */
+  html.in-project .nav {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  html.in-project .work-stage-nav {
+    top: 24px;
+  }
+  html.in-project .cs-feat-fixed {
+    padding-top: 72px;
+  }
   .cs-feat__device {
     flex: none;
     padding-bottom: 20px;
@@ -1958,10 +1975,12 @@ html.nav-hidden .work-stage-nav {
   justify-content: center;
   gap: 10px;
   border: 1px solid rgba(255, 255, 255, 0.22);
-  /* Solid-ish dark fill + blur so scrolling content behind stays readable. */
-  background: rgba(12, 12, 14, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  /* Solid-ish dark fill + blur so scrolling content behind stays readable —
+     these sit directly over the content on mobile now that the site header
+     hides while a project fills the screen (see html.in-project below). */
+  background: rgba(12, 12, 14, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   color: #f4f5f7;
   font-family: var(--font-body);
   font-size: 13px;
@@ -2014,9 +2033,9 @@ html.nav-hidden .work-stage-nav {
   padding: 10px 20px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(12, 12, 14, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(12, 12, 14, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   color: #f4f5f7;
   font-family: var(--font-body);
   font-size: 13px;
