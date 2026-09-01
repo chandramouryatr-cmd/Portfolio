@@ -260,10 +260,15 @@ html.in-project .cursor-dot.is-active {
 
 /* The custom dot replaces the native cursor — without this the OS arrow was
    still showing through on top of it, including as a stray light mark over
-   the dark hero. */
-html.custom-cursor,
-html.custom-cursor * {
-  cursor: none;
+   the dark hero. Scoped to match the exact condition where the dot itself
+   is shown (see .cursor-dot above) — otherwise a narrow/no-hover viewport
+   hid the dot but left the native cursor suppressed too, so nothing was
+   visible at all against the dark background. */
+@media (min-width: 781px) and (hover: hover) {
+  html.custom-cursor,
+  html.custom-cursor * {
+    cursor: none;
+  }
 }
 
 /* ------------------------------------------------------------------ */
