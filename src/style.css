@@ -923,6 +923,13 @@ section {
     padding-top: 96px;
     padding-bottom: 0;
     overflow: hidden;
+    /* Tracks the work-stage-nav's own top offset below (96px matches it
+       showing at top:90px; 72px matches it hiding at top:24px) so the
+       device doesn't leave a dead gap once the header/nav slides away. */
+    transition: padding-top 0.4s cubic-bezier(0.4, 0, 0.1, 1);
+  }
+  html.nav-hidden .cs-feat-fixed {
+    padding-top: 72px;
   }
   .cs-feat__device {
     flex: none;
@@ -940,6 +947,17 @@ section {
     /* Clears the "Move to About Us" pill pinned to the stage's bottom
        edge, so the last line of text/button never sits under it. */
     padding-bottom: 100px;
+  }
+  /* "01 / 06" + "Explain in Detail" stay pinned to the top of the
+     scrolling text column instead of scrolling away with it — .cs-feat__info
+     is a real overflow-y:auto box (not the outer transform-driven virtual
+     scroll), so sticky positions correctly against it. */
+  .cs-feat__info-head {
+    position: sticky;
+    top: -1px;
+    z-index: 3;
+    background: #0a0a0a;
+    padding-bottom: 10px;
   }
 }
 
