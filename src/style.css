@@ -925,16 +925,16 @@ section {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    padding-top: 96px;
+    padding-top: 64px;
     padding-bottom: 0;
     overflow: hidden;
-    /* Tracks the work-stage-nav's own top offset below (96px matches it
-       showing at top:90px; 72px matches it hiding at top:24px) so the
+    /* Tracks the work-stage-nav's own top offset below (64px matches it
+       showing at top:90px; 48px matches it hiding at top:24px) so the
        device doesn't leave a dead gap once the header/nav slides away. */
     transition: padding-top 0.4s cubic-bezier(0.4, 0, 0.1, 1);
   }
   html.nav-hidden .cs-feat-fixed {
-    padding-top: 72px;
+    padding-top: 48px;
   }
   /* The site header (logo + "Start a project") is redundant once a project
      fills the screen — the story's own back-arrow already handles going
@@ -951,11 +951,12 @@ section {
     top: 24px;
   }
   html.in-project .cs-feat-fixed {
-    padding-top: 72px;
+    padding-top: 48px;
   }
   .cs-feat__device {
     flex: none;
-    padding-bottom: 20px;
+    gap: 12px;
+    padding-bottom: 14px;
   }
   .cs-feat__frame[data-bp="mobile"] {
     width: auto;
