@@ -34,7 +34,6 @@
 
     <main id="main">
       <section id="top" class="hero">
-        <canvas id="bg-canvas" aria-hidden="true"></canvas>
         <div id="hero-grid" aria-hidden="true"></div>
         <div class="hero-doodles" aria-hidden="true">
           <svg class="doodle doodle--guide" viewBox="0 0 56 56" fill="none">
@@ -57,7 +56,35 @@
           </svg>
           <span class="doodle doodle--glyph">Aa</span>
         </div>
-        <div id="liquid-shine" aria-hidden="true"></div>
+
+        <!-- "A Good Disappears" — the entrance ritual. A deliberately bad,
+             90s-web scene the visitor vacuums away to reach the real site;
+             see src/vacuumIntro.ts. -->
+        <div class="vacuum-intro" id="vacuumIntro">
+          <div class="junk junk--name" data-junk>Mourya</div>
+          <div class="junk junk--projects" data-junk>★ Projects ★</div>
+          <div class="junk junk--resume" data-junk>Résumé.doc</div>
+          <div class="junk junk--contact" data-junk>Contact Us!!</div>
+
+          <div class="vacuum-intro__tagline-wrap" aria-hidden="true">
+            <div class="vacuum-intro__tagline" id="vacuumTagline">
+              <span class="vacuum-intro__tagline-text is-old" data-tagline-old>A Good Disappears</span>
+              <span class="vacuum-intro__tagline-text is-new" data-tagline-new>Chandra Mourya</span>
+            </div>
+          </div>
+
+          <p class="vacuum-intro__hint">Drag the vacuum in, flip the switch.</p>
+
+          <div class="vacuum" id="vacuum">
+            <button type="button" class="vacuum__switch" id="vacuumSwitch" aria-label="Turn the vacuum on">
+              <span class="vacuum__switch-knob" aria-hidden="true"></span>
+            </button>
+            <div class="vacuum__body" data-vacuum-drag aria-hidden="true">
+              <div class="vacuum__nozzle"></div>
+            </div>
+          </div>
+        </div>
+
         <div class="hero__content">
           <p class="eyebrow">UI/UX Design &amp; Creative Strategy — India</p>
           <h1 class="hero__headline">
@@ -67,7 +94,6 @@
             </span>
             <br />
             <span class="hl-line2">
-              <button type="button" class="liquid-cta" id="heroCta">Click here</button>
               <span class="hl-line2-text"
                 >design decision.<span class="underline" aria-hidden="true"></span
               ></span>

@@ -93,24 +93,6 @@ h1, h2, h3, p {
   outline-offset: 3px;
 }
 
-/* ------------------------------------------------------------------ */
-/* Background canvas — scoped to the hero only, not the whole page     */
-/* ------------------------------------------------------------------ */
-#bg-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  display: block;
-  filter: blur(7px) contrast(24) drop-shadow(0 18px 34px rgba(0, 0, 0, 0.4));
-}
-/* While the curtain is up, a finger drag across it should push the liquid,
-   not trigger the browser's own scroll/overscroll/pull-to-refresh gesture. */
-html.scroll-locked #bg-canvas {
-  touch-action: none;
-}
-
 /* Faint background grid — reads as quiet structure, not the old blueprint
    look. Nudges a few px with the cursor via --grid-x/--grid-y (set in JS). */
 #hero-grid {
@@ -188,35 +170,6 @@ html.scroll-locked #bg-canvas {
   }
 }
 
-/* Specular sheen for the liquid — screen-blended so it only brightens the
-   black liquid and stays invisible over the white page (screen of white
-   over white is still white), giving a glossy ferrofluid-style highlight
-   without needing to mask it to the liquid's exact silhouette. */
-#liquid-shine {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  mix-blend-mode: screen;
-  background:
-    radial-gradient(
-      120px 90px at var(--shine-x, 32%) var(--shine-y, 22%),
-      rgba(255, 255, 255, 0.65),
-      rgba(255, 255, 255, 0.16) 45%,
-      transparent 70%
-    ),
-    radial-gradient(
-      60% 45% at 50% 65%,
-      rgba(255, 255, 255, 0.1),
-      transparent 70%
-    );
-  opacity: 1;
-  transition: opacity 0.4s ease;
-}
-.hero.is-settled #liquid-shine {
-  opacity: 0;
-}
-
 footer.footer {
   position: relative;
   z-index: 2;
@@ -261,6 +214,11 @@ html.in-project .cursor-dot.is-active {
   .cursor-dot {
     display: none;
   }
+}
+/* The vacuum intro is a draggable prop, not a cursor replacement — the
+   native pointer stays visible so it's precise enough to grab the handle. */
+html.intro-active .cursor-dot {
+  display: none;
 }
 
 /* The custom dot replaces the native cursor — without this the OS arrow was
@@ -545,29 +503,6 @@ section {
   transform-origin: left;
   transition: transform 0.6s ease-out;
 }
-.liquid-cta {
-  width: clamp(44px, 10cqw, 120px);
-  height: clamp(44px, 10cqw, 120px);
-  border-radius: 50%;
-  background: transparent;
-  border: 1.5px solid #ffffff;
-  color: #ffffff;
-  font-family: var(--font-body);
-  font-size: clamp(12px, 1.1vw, 14px);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease,
-    transform 0.35s ease, opacity 0.35s ease;
-}
-.liquid-cta:hover {
-  background: rgba(255, 255, 255, 0.12);
-}
-.liquid-cta.is-retiring {
-  transform: scale(1.3);
-  opacity: 0;
-  pointer-events: none;
-}
-
 .hero__sub {
   font-size: clamp(16px, 1.6vw, 20px);
   line-height: 1.6;
@@ -621,6 +556,220 @@ section {
 @keyframes bob {
   0%, 100% { transform: translateX(0); }
   50% { transform: translateX(5px); }
+}
+
+/* ------------------------------------------------------------------ */
+/* "A Good Disappears" — the vacuum entrance ritual (src/vacuumIntro.ts) */
+/* position: fixed throughout — coordinates come straight from clientX/Y  */
+/* and innerWidth/innerHeight in JS, so everything shares one, viewport- */
+/* relative space with no ancestor-offset math needed.                   */
+/* ------------------------------------------------------------------ */
+.vacuum-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+.vacuum-intro[hidden] {
+  display: none;
+}
+
+.vacuum-intro__hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(28px, 6vh, 56px);
+  transform: translateX(-50%);
+  z-index: 1;
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: rgba(244, 245, 247, 0.4);
+  text-align: center;
+}
+
+/* ---- Junk: the deliberately bad 90s scrap flying around ---- */
+.junk {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  padding: 10px 16px;
+  font-family: "Comic Sans MS", "Chalkboard SE", cursive, sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  white-space: nowrap;
+  will-change: transform;
+  user-select: none;
+}
+.junk--name {
+  background: linear-gradient(90deg, #ff3b3b, #ff9d3b, #ffe93b, #3bff6b, #3bb0ff, #a03bff);
+  color: #fff;
+  text-shadow: 2px 2px 0 #000;
+  border: 3px solid #fff;
+  border-radius: 4px;
+  animation: junk-blink 1.1s steps(1) infinite;
+}
+.junk--projects {
+  background: #c0c0c0;
+  color: #000080;
+  border-style: solid;
+  border-width: 3px;
+  border-color: #fff #4d4d4d #4d4d4d #fff;
+  font-family: "Times New Roman", Times, serif;
+  font-weight: 700;
+}
+.junk--resume {
+  background: #000;
+  color: #24ff5e;
+  border: 2px dashed #24ff5e;
+  font-family: "Courier New", Courier, monospace;
+  letter-spacing: 0.02em;
+}
+.junk--contact {
+  background: repeating-linear-gradient(45deg, #ff3bd0, #ff3bd0 10px, #23e3ff 10px, #23e3ff 20px);
+  color: #ffef3b;
+  text-shadow: 1px 1px 0 #000;
+  border: 4px ridge #ff3bd0;
+  border-radius: 999px;
+  animation: junk-blink 0.7s steps(1) infinite;
+}
+@keyframes junk-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.35; }
+}
+
+/* ---- Centre block: static, gets bounced off, then morphs into the
+   header instead of getting sucked away with everything else. ---- */
+.vacuum-intro__tagline-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.vacuum-intro__tagline {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(30px, 6.5vw, 76px);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: #f4f5f7;
+  text-align: center;
+  transform-origin: center center;
+  white-space: nowrap;
+}
+.vacuum-intro__tagline-text {
+  display: block;
+  transition: opacity 0.3s ease;
+}
+.vacuum-intro__tagline-text.is-new {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.vacuum-intro__tagline.is-morphed .is-old {
+  opacity: 0;
+}
+.vacuum-intro__tagline.is-morphed .is-new {
+  opacity: 1;
+}
+
+/* ---- The vacuum: a draggable prop, not a cursor replacement ---- */
+.vacuum {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 108px;
+  height: 128px;
+  z-index: 3;
+  will-change: transform;
+}
+.vacuum__switch {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  width: 46px;
+  height: 22px;
+  padding: 3px;
+  border: none;
+  border-radius: 999px;
+  background: #2a2a2e;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+}
+.vacuum__switch-knob {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #f4f5f7;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+.vacuum__switch:hover:not(:disabled) .vacuum__switch-knob {
+  background: #ffffff;
+}
+.vacuum__switch.is-on {
+  background: #3fae5c;
+}
+.vacuum__switch.is-on .vacuum__switch-knob {
+  transform: translateX(24px);
+  background: #ffffff;
+}
+.vacuum__switch:disabled {
+  cursor: default;
+}
+.vacuum__body {
+  position: absolute;
+  left: 50%;
+  top: 28px;
+  transform: translateX(-50%);
+  width: 76px;
+  height: 92px;
+  border-radius: 30px 30px 14px 14px;
+  background: linear-gradient(155deg, #eceef1 0%, #b7bac2 55%, #85858e 100%);
+  box-shadow: inset 0 -10px 16px rgba(0, 0, 0, 0.28), inset 0 6px 10px rgba(255, 255, 255, 0.5),
+    0 14px 26px rgba(0, 0, 0, 0.4);
+  cursor: grab;
+  touch-action: none;
+}
+.vacuum.is-dragging .vacuum__body {
+  cursor: grabbing;
+  filter: brightness(1.05);
+}
+.vacuum__nozzle {
+  position: absolute;
+  left: 50%;
+  bottom: -16px;
+  transform: translateX(-50%);
+  width: 46px;
+  height: 24px;
+  border-radius: 0 0 16px 16px;
+  background: linear-gradient(180deg, #5a5a63, #2e2e33);
+  box-shadow: inset 0 -4px 6px rgba(0, 0, 0, 0.4);
+}
+.vacuum__nozzle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 6px;
+  border-radius: 3px;
+  background: #111114;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .junk {
+    animation: none;
+  }
 }
 
 /* ------------------------------------------------------------------ */

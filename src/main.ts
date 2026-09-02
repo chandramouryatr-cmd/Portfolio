@@ -2,7 +2,7 @@ import "./style.css";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
-import { initLiquidCurtain } from "./liquid";
+import { initVacuumIntro } from "./vacuumIntro";
 import { initCursor } from "./cursor";
 import { initWorkStage } from "./work";
 import { projects, skills } from "./data";
@@ -12,9 +12,9 @@ gsap.registerPlugin(ScrollTrigger);
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* ---------------------------------------------------------------- */
-/* Hero liquid curtain                                               */
+/* Hero entrance: "A Good Disappears" vacuum intro                   */
 /* ---------------------------------------------------------------- */
-initLiquidCurtain();
+initVacuumIntro();
 
 /* ---------------------------------------------------------------- */
 /* Custom cursor                                                     */
