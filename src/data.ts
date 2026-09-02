@@ -19,10 +19,10 @@ export const projects: Project[] = [
 ];
 
 export const skills = [
-  "Product Design",
-  "Figma & Prototyping",
+  "AI/ML Interface Design",
+  "UI/UX Design",
   "Design Systems",
   "User Research",
-  "Motion & Interaction",
-  "HTML / CSS / JS",
+  "Visual Branding & Strategy",
+  "Figma & Prototyping",
 ];
