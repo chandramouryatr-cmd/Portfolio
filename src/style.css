@@ -226,10 +226,13 @@ html.intro-active .cursor-dot {
    the dark hero. Scoped to match the exact condition where the dot itself
    is shown (see .cursor-dot above) — otherwise a narrow/no-hover viewport
    hid the dot but left the native cursor suppressed too, so nothing was
-   visible at all against the dark background. */
+   visible at all against the dark background. Same reasoning excludes
+   intro-active: the vacuum intro hides the dot too (it's a dragged prop,
+   not a cursor replacement — see .vacuum in the intro's own CSS), so
+   suppressing the native cursor there left nothing visible either. */
 @media (min-width: 781px) and (hover: hover) {
-  html.custom-cursor,
-  html.custom-cursor * {
+  html.custom-cursor:not(.intro-active),
+  html.custom-cursor:not(.intro-active) * {
     cursor: none;
   }
 }
